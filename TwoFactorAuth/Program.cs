@@ -14,37 +14,56 @@ namespace TwoFactorAuth
 
         static void Main(string[] args)
         {
+            //
             // create a new secret key
-            byte[] secretKeyData = KeyGeneration.GenerateRandomKey(20);
-            string secretKeyString = Base32Encoder.Encode(secretKeyData);
+            //
+            var secretKeyData = KeyGeneration.GenerateRandomKey(20);
+            var secretKeyString = Base32Encoder.Encode(secretKeyData);
+            var period = 30;
+            var digits = 6;
 
             Console.WriteLine("Add the following new secret key to you auth app and enter the generated code.");
             Console.WriteLine();
             Console.WriteLine("Secret key: " + secretKeyString);
             Console.WriteLine();
 
-            // var otpCode = otp.ComputeTotp(DateTime.UtcNow);
-            // var otpSeconds = otp.RemainingSeconds();
+            var otp = new Totp(secretKeyData,
+                step: period,
+                mode: OtpHashMode.Sha256,
+                totpSize: digits);
 
-            // uncomment to create a qr code image and save it in bin folder under the filename qr-code.png.
-            // string issuer = "Example";
-            // string appName = "MyApp";
-            // string user = "test@my-app.abc";
             // 
-            // QRCodeGenerator qrGenerator = new QRCodeGenerator();
-            // QRCodeData qrCodeData = qrGenerator.CreateQrCode(
-            //     $"otpauth://totp/{appName}:{user}?secret={secretKeyString}&issuer={issuer}",
-            //     QRCodeGenerator.ECCLevel.H);
-            // QRCode qrCode = new QRCode(qrCodeData);
-            // 
-            // var qrCodeImage = qrCode.GetGraphic(20);
-            // qrCodeImage.Save("qr-code.png", ImageFormat.Png);
+            // generate a qr code image
+            //
+            var otpQrGenerator = new PayloadGenerator.OneTimePassword
+            {
+                Label = "Example",
+                Type = PayloadGenerator.OneTimePassword.OneTimePasswordAuthType.TOTP,
+                Period = period,
+                Algorithm = PayloadGenerator.OneTimePassword.OoneTimePasswordAuthAlgorithm.SHA256,
+                Secret = secretKeyString,
+                Issuer = "example@test.ab",
+                Digits = digits
+            };
 
-            // check code
+            var qrCodepayload = otpQrGenerator.ToString();
+
+            var qrGenerator = new QRCodeGenerator();
+            var qrCodeData = qrGenerator.CreateQrCode(qrCodepayload, QRCodeGenerator.ECCLevel.H);
+            var qrCode = new QRCode(qrCodeData);
+
+            var qrCodeImage = qrCode.GetGraphic(20);
+            qrCodeImage.Save("qr-code.png", ImageFormat.Png);
+
+            //
+            // validate entered code
+            //
             Console.Write("Code: ");
             var enteredCode = Console.ReadLine();
 
-            var otp = new Totp(secretKeyData);
+            var otpCode = otp.ComputeTotp(DateTime.UtcNow);
+            var otpSeconds = otp.RemainingSeconds();
+
             if (otp.VerifyTotp(enteredCode, out long timeStepMatched))
             {
                 Console.WriteLine("The code is valid");
