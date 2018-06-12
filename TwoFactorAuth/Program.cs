@@ -1,6 +1,8 @@
 ﻿using Base32;
 using OtpSharp;
+using QRCoder;
 using System;
+using System.Drawing.Imaging;
 
 namespace TwoFactorAuth
 {
@@ -23,6 +25,20 @@ namespace TwoFactorAuth
 
             // var otpCode = otp.ComputeTotp(DateTime.UtcNow);
             // var otpSeconds = otp.RemainingSeconds();
+
+            // uncomment to create a qr code image and save it in bin folder under the filename qr-code.png.
+            // string issuer = "Example";
+            // string appName = "MyApp";
+            // string user = "test@my-app.abc";
+            // 
+            // QRCodeGenerator qrGenerator = new QRCodeGenerator();
+            // QRCodeData qrCodeData = qrGenerator.CreateQrCode(
+            //     $"otpauth://totp/{appName}:{user}?secret={secretKeyString}&issuer={issuer}",
+            //     QRCodeGenerator.ECCLevel.H);
+            // QRCode qrCode = new QRCode(qrCodeData);
+            // 
+            // var qrCodeImage = qrCode.GetGraphic(20);
+            // qrCodeImage.Save("qr-code.png", ImageFormat.Png);
 
             // check code
             Console.Write("Code: ");
