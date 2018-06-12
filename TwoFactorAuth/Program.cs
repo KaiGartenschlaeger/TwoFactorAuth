@@ -3,6 +3,7 @@ using OtpSharp;
 using QRCoder;
 using System;
 using System.Drawing.Imaging;
+using System.IO;
 
 namespace TwoFactorAuth
 {
@@ -33,9 +34,9 @@ namespace TwoFactorAuth
                 totpSize: digits);
 
             // 
-            // generate a qr code image
+            // generate qr code images
             //
-            var otpQrGenerator = new PayloadGenerator.OneTimePassword
+            var qrCodepayload = new PayloadGenerator.OneTimePassword
             {
                 Label = "Example",
                 Type = PayloadGenerator.OneTimePassword.OneTimePasswordAuthType.TOTP,
@@ -44,16 +45,21 @@ namespace TwoFactorAuth
                 Secret = secretKeyString,
                 Issuer = "example@test.ab",
                 Digits = digits
-            };
-
-            var qrCodepayload = otpQrGenerator.ToString();
+            }.ToString();
 
             var qrGenerator = new QRCodeGenerator();
             var qrCodeData = qrGenerator.CreateQrCode(qrCodepayload, QRCodeGenerator.ECCLevel.H);
-            var qrCode = new QRCode(qrCodeData);
 
+            // png format
+            var qrCode = new QRCode(qrCodeData);
             var qrCodeImage = qrCode.GetGraphic(20);
             qrCodeImage.Save("qr-code.png", ImageFormat.Png);
+
+            // svg format
+            var svg = new SvgQRCode(qrCodeData);
+            var qrCodeAsSvg = svg.GetGraphic(20);
+
+            File.WriteAllText("qr-code.svg", qrCodeAsSvg);
 
             //
             // validate entered code
