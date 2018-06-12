@@ -8,17 +8,17 @@ namespace TwoFactorAuth
 {
     class Program
     {
-        // static key for tests
+        // a static key for tests
         private static readonly string SecretTestKey = "SVSPMQGHAIKFW6FBQI5NNXKOUBZM3L34";
         private static readonly byte[] SecretTestData = Base32Encoder.Decode(SecretTestKey);
 
         static void Main(string[] args)
         {
-            // create new secret key
+            // create a new secret key
             byte[] secretKeyData = KeyGeneration.GenerateRandomKey(20);
             string secretKeyString = Base32Encoder.Encode(secretKeyData);
 
-            Console.WriteLine("Add a new Key to you Auth App and enter the generated code.");
+            Console.WriteLine("Add the following new secret key to you auth app and enter the generated code.");
             Console.WriteLine();
             Console.WriteLine("Secret key: " + secretKeyString);
             Console.WriteLine();
